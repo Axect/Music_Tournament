@@ -15,6 +15,10 @@ fn main() {
     let mut ans = String::new();
     stdin().read_line(&mut ans).expect("Not correct");
     ans.retain(|x| x != '\n');
+
+    let mut result: Vec<String> = Vec::new();
+
+    // No save file
     if ans == "n" {
         // Input file directory
         println!("Input root directory of mp3");
@@ -24,12 +28,13 @@ fn main() {
 
         let dir = Path::new(&root);
 
-        let mut mp3_list = find_mp3(dir).unwrap();
-        thread_rng().shuffle(&mut mp3_list);
-        write_mp3_list("save_0.txt", &mp3_list);
+        result = find_mp3(dir).unwrap();
+        thread_rng().shuffle(&mut result);
+        write_mp3_list("save_0.txt", &result);
         println!("Write complete");
-        println!("{:?}", mp3_list);
+        println!("{:?}", result);
     } else if ans == "y" {
+        // Save file
         let name = Path::new("save_0.txt");
         let mut f = File::open(name).expect("File not found");
         let mut temp = String::new();
@@ -37,9 +42,34 @@ fn main() {
         f.read_to_string(&mut temp)
             .expect("Can't open this file");
 
-        let mut result: Vec<&str> = temp.split('\n').collect();
-        println!("{:?}", result);
+        result = temp.split('\n')
+            .map(|x| x.to_string()).collect();
     }
+
+    let length = result.len();
+    let mut result2: Vec<String> = Vec::new();
+
+    for i in 0 .. length/2-1 {
+        let x = &result[2*i];
+        let y = &result[2*i+1];
+        println!("{}  vs  {}", x, y);
+        let mut ans = String::new();
+        stdin().read_line(&mut ans).expect("Not correct");
+        ans.retain(|x| x != '\n');
+
+        if ans == "1" {
+            result2.push(x.to_string());
+        } else if ans == "2" {
+            result2.push(y.to_string());
+        } else if ans == "3" {
+            result2.push(x.to_string());
+            result2.push(y.to_string());
+        } else {
+            continue
+        }
+    }
+
+    write_mp3_list("save_1.txt", &result2);
 }
 
 fn find_mp3(dir: &Path) -> io::Result<Vec<String>> {
